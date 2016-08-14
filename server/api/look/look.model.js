@@ -1,9 +1,11 @@
 'use strict';
 
 var mongoose = require('mongoose');
-var Schema = mongoose.Schema({
+var Schema = mongoose.Schema;
+
+var LookSchema = new Schema({
     image: String,
-    linkUrl: String,
+    linkURL: String,
     title: String,
     description: String,
     tags: [{
@@ -14,16 +16,17 @@ var Schema = mongoose.Schema({
         ref: 'User'
     },
     email: String,
+    userName: String,
     createTime: {
         type: Date,
-        'default': Data.now
+        'default': Date.now
     },
     views: {
-        type: 'number',
+        type: Number,
         'default': 0
     },
     upVotes: {
-        type: 'number',
+        type: Number,
         'default': 0
     }
 });

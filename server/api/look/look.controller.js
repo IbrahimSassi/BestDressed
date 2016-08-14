@@ -3,15 +3,13 @@
 var _ = require('lodash');
 var Look = require('./look.model');
 var path = require('path');
-var utils = require('../../utils.js');
-
+var utils = require('../../utils/utils.js');
 
 exports.scrapeUpload = function (req, res) {
     var random = utils.randomizer(32, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
 
-    utils.downloadURI(req.body.image, '../client/assets/images/uploads/' + random + '.png', function (filename) {
+    utils.downloadURI(req.body.linkURL, '../client/assets/images/uploads/' + random + '.png', function (filename) {
         console.log('done');
-
 
         var newLook = new Look();
         newLook.title = req.body.title;
@@ -33,7 +31,5 @@ exports.scrapeUpload = function (req, res) {
                     .json(item);
             }
         });
-
     });
-
 }

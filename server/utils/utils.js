@@ -7,7 +7,9 @@ exports.downloadURI = function(url, filename, callback) {
     .pipe(fs.createWriteStream(filename))
     .on('close', function() {
       callback(filename);
+      console.log('filename');
       console.log(filename);
+      console.log(url);
     });
 }
 
