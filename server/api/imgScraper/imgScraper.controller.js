@@ -2,14 +2,14 @@
 
 var scrapers = {};
 
-scrapers['pinterest'] = require('./scrapers/pinterest.js');
+scrapers['imgur'] = require('./scrapers/pinterest.js');
 
 exports.scrape = function (req,res) {
     var url = req.body.url;
     var scraperToUse;
 
-    if(url.indexOf('pinterest')>-1){
-        scraperToUse = 'pinterest';
+    if(url.indexOf('imgur')>-1){
+        scraperToUse = 'imgur';
     }
     else{
         console.log('cannot locate scraper');
@@ -17,6 +17,6 @@ exports.scrape = function (req,res) {
 
     scrapers[scraperToUse].list(url,function(data){
         console.log('data from scraper', data);
-        resjson(data);
+        res.json(data);
         })
 }

@@ -3,35 +3,34 @@
 var request = require('request');
 var cheerio = require('cheerio');
 
+exports.list = function(url, cb) {
+  request(url, function(error, resp, body) {
+    if(error) {
+      cb({
+        error: error
+      });
+    }
+    if(!error){
 
-exports.list = function (url,cb) {
-    request(url,function(error,resp,body){
-        if(error){
-            cb({
-                error:error
-            });
-        }
+      var $ = cheerio.load(body);
+      var pin = {};
+      var $url = url;
+      var $img = $('.post-image img').attr('src');
+      console.log('$img');
+      console.log($img);
 
-        if(!error){
-            var $ = cheerio.load(body);
-            var pin = {};
-            var $url = url;
-            var $img = $('.heightContainer img').attr('src');
-            var $desc = $('.heightContainer img').attr('alt');
+      var $desc = $('.post-image img').attr('alt');
+      console.log('$desc');
+      console.log($desc);
 
-            console.log($img + 'pin url');
+      var pin = {
+        img: $img,
+        url: $url,
+        desc: $desc
+      }
 
-            var pin = {
-                img :$img,
-                url: $url,
-                desc:$desc
-            }    
-
-                //respond with final JSON obj
-
-                cb(pin);
-
-                }
-
-    })
+      // respond with the final JSON object
+      cb(pin);
+    }
+  });
 }
