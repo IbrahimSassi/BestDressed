@@ -30,6 +30,28 @@ exports.allLooks = function (req, res) {
 
 }
 
+exports.userLooks = function (req, res) {
+    var userEmail = req.query.email;
+    Look.find({
+        email: {
+            $in: userEmail
+        }
+    })
+        .sort({
+            createTime: -1
+        })
+        .exec(function (err, looks) {
+            if (err) {
+                return handleError(res, err);
+            }
+            console.log(looks);
+            return res.status(200)
+                .json(looks);
+        });
+};
+
+
+
 
 
 exports.scrapeUpload = function (req, res) {
@@ -62,33 +84,95 @@ exports.scrapeUpload = function (req, res) {
 }
 
 
-exports.upload = function(req, res) {
-  var newLook = new Look();
-  var fileimage = req.middlewareStorage.fileimage;
+exports.upload = function (req, res) {
+    var newLook = new Look();
+    var fileimage = req.middlewareStorage.fileimage;
 
-  console.log(req.body);
-  newLook.image = '/assets/images/uploads/' + fileimage;
-  newLook.email = req.body.email;
-  newLook.linkURL = req.body.linkURL;
-  newLook.title = req.body.title;
-  newLook.description = req.body.description;
-  newLook.userName = req.body.name;
-  newLook._creator = req.body._creator;
-  newLook.createTime = Date.now();
-  newLook.upVotes = 0;
+    console.log(req.body);
+    newLook.image = '/assets/images/uploads/' + fileimage;
+    newLook.email = req.body.email;
+    newLook.linkURL = req.body.linkURL;
+    newLook.title = req.body.title;
+    newLook.description = req.body.description;
+    newLook.userName = req.body.name;
+    newLook._creator = req.body._creator;
+    newLook.createTime = Date.now();
+    newLook.upVotes = 0;
 
-  newLook.save(function(err, look) {
-    if (err) {
-      console.log('error saving look ');
-      return res.send(500);
-    } else {
-      console.log(look);
-      console.log('Look Saved to DB ');
-      res.status(200)
-        .send(look);
+    newLook.save(function (err, look) {
+        if (err) {
+            console.log('error saving look ');
+            return res.send(500);
+        } else {
+            console.log(look);
+            console.log('Look Saved to DB ');
+            res.status(200)
+                .send(look);
+        }
+    });
+};
+
+//GET BY ID
+
+exports.singleLook = function(req, res) {
+  Look.findById(req.params.lookId, function(err, look) {
+    if(err) {
+      return handleError(res, err);
     }
+    if(!look) {
+      return res.send(404);
+    }
+    return res.json(look);
   });
 };
+
+//UPDATEEEEE
+
+exports.update = function(req, res) {
+  if(req.body._id) {
+    delete req.body._id;
+  }
+  Look.findById(req.params.id, function(err, look) {
+    if(err) {
+      return handleError(res, err);
+      }
+      if(!look) {
+        return res.send(404);
+      }
+      var updated = _.merge(look, req.body);
+      updated.save(function(err) {
+        if(err) {
+          return handleError(res, err);
+        }
+        console.log(look);
+        return res.json(look);
+      });
+  });
+};
+
+
+//delete
+
+exports.delete = function(req, res) {
+  Look.findById(req.params.id, function(err, look) {
+    if(err) {
+      return handleError(res, err);
+    }
+    if(!look) {
+      return res.send(404);
+    }
+    look.remove(function(err) {
+      if(err) {
+        return handleError(res, err);
+      }
+      return res.send(200);
+    });
+  });
+};
+
+
+
+
 
 
 
