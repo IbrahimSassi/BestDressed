@@ -8,7 +8,15 @@
 
         function looksAPI($http) {
             return {
-                createScrapeLook: createScrapeLook
+                createScrapeLook: createScrapeLook,
+                getAllLooks : getAllLooks
+            }
+
+
+            function getAllLooks() {
+                return $http.get('/api/look/getAllLooks',{
+                    cache:true
+                })
             }
 
             function createScrapeLook(look) {
