@@ -8,6 +8,7 @@ var utils = require('../../utils/utils.js');
 
 
 exports.allLooks = function (req, res) {
+
     Look.find({})
         .sort({
             createTime: -1
