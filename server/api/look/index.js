@@ -14,6 +14,8 @@ router.put('/:id',auth.isAuthenticated(),controller.update);
 router.get('/getAllLooks', controller.allLooks);
 router.get('/getUserLooks', controller.userLooks);
 router.get('/:lookId', controller.singleLook);
+router.get('/popLooks/:id', controller.popLooks);
+
 
 router.delete('/:id',controller.delete)
 module.exports = router;

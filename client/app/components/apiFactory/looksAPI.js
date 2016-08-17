@@ -15,6 +15,7 @@
       findOneLook: findOneLook,
       getUpdateLook: getUpdateLook,
       updateLook: updateLook,
+      popLooks: popLooks,
       deleteLook: deleteLook
     });
 
@@ -36,7 +37,11 @@
     }
 
     function findOneLook(look) {
-      return $http.get('/api/look' + look);
+      return $http.get('/api/look/' + look);
+    }
+
+    function popLooks(look) {
+      return $http.get('/api/look/popLooks/' + look);
     }
 
     function getUpdateLook(look) {

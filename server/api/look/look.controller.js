@@ -113,6 +113,28 @@ exports.upload = function (req, res) {
     });
 };
 
+
+exports.popLooks = function(req,res){
+Look.find(req.params.id)
+    .sort('-upVotes')
+    .limit(6)
+    .exec(function(err,looks){
+        if(err){
+            return handleError(res,err);
+        }
+        console.log(looks);
+        return res.json(looks);
+    })
+}
+
+
+
+
+
+
+
+
+
 //GET BY ID
 
 exports.singleLook = function(req, res) {
