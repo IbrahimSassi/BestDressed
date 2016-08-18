@@ -95,6 +95,20 @@
       }
     });
 
+
+
+    $scope.addVote = function(look){
+      looksAPI.upVoteLook(look)
+        .then(function(data){
+          console.log(data);
+          look.upVotes ++;
+        })
+        .catch(function(err){
+          console.log('failed adding upvote');
+        })
+    }
+
+
     $scope.addScrapePost = function() {
       // Send post details to DB
       var look = {

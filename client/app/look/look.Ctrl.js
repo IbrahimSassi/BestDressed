@@ -17,7 +17,7 @@
       .then(function(data) {
         console.log(data);
         $scope.look = data.data;
-        // addView();
+        addView();
       }, function(err) {
         console.log('failed to get look ', err);
       });
@@ -38,6 +38,25 @@
         console.log('failed to get comments ', err);
       });
 
+
+
+       $scope.addVote = function(look){
+      looksAPI.upVoteLook(look)
+        .then(function(data){
+          console.log(data);
+          look.upVotes ++;
+        })
+        .catch(function(err){
+          console.log('failed adding upvote');
+        })
+      }
+
+
+
+
+
+
+
     // Post new comment
     $scope.postComment = function() {
       var comment = {
@@ -55,6 +74,19 @@
           $scope.comments.splice(0, 0, data.data);
         }, function(err) {
           console.log('failed to post object ', err);
+        });
+    }
+
+
+    function addView() {
+      looksAPI.addView($scope.id)
+        .then(function(res){
+          res.views++;
+          console.log('view added to Look');
+          console.log(res);
+        })
+        .catch(function(err){
+          console.log('failed to increment' ,err)
         });
     }
 
