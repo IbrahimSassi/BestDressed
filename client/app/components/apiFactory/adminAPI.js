@@ -11,6 +11,7 @@
 
     return {
       getAllUsers: getAllUsers,
+      getOneUser: getOneUser,
       deleteUser: deleteUser
     }
 
@@ -21,6 +22,10 @@
       });
     }
 
+    function getOneUser(id) {
+      var url = '/api/users/' + id;
+      return $http.get(url);
+    }
 
     function deleteUser(user) {
       var url = '/api/users/' + user._id;

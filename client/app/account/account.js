@@ -30,6 +30,15 @@
         templateUrl: 'app/account/forgotpassword/forgotpassword.html',
         controller: 'ForgotPasswordCtrl',
         authenticate: true
-      });
+      })
+      .state('profile',{
+        url: '/profile',
+        templateUrl: 'app/account/profile/profile.html',
+        controller: 'ProfileCtrl',
+        authenticate: true
+
+      })
+      
+      ;
     }
 })();
