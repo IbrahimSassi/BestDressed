@@ -1,188 +1,133 @@
-(function() {
+(function () {
   'use strict';
 
   angular
     .module('app')
-    .controller('MainCtrl', MainCtrl);
+    .controller('AdminCtrl', AdminCtrl);
 
-  MainCtrl.$inject = ['$scope', '$state', 'Auth', '$modal', 'scrapeAPI', '$http', '$alert', 'looksAPI', 'Upload'];
+  AdminCtrl.$inject = ['$scope', 'Auth', '$modal', 'adminAPI', '$alert', 'looksAPI'];
 
-  function MainCtrl($scope, $state, Auth, $modal, scrapeAPI, $http, $alert, looksAPI, Upload) {
-    $scope.user = Auth.getCurrentUser();
+  function AdminCtrl($scope, Auth, $modal, adminAPI, $alert, looksAPI) {
 
-    $scope.look = {};
     $scope.looks = [];
-    $scope.scrapePostForm = true;
-    $scope.showScrapeDetails = false;
-    $scope.gotScrapeResults = false;
-    $scope.loading = false;
-
-    $scope.picPreview = true;
-    $scope.uploadLookTitle = true;
-    $scope.uploadLookForm = false;
-
-    $scope.busy = true;
-    $scope.allData = [];
-    var page = 0;
-    var step = 3;
+    $scope.users = [];
+    $scope.user = {};
+    $scope.editLook = {};
+    $scope.deleteBtn = true;
 
     var alertSuccess = $alert({
-      title: 'Success! ',
-      content: 'New Look added',
+      title: 'Saved ',
+      content: 'Look has been edited',
       placement: 'top-right',
       container: '#alertContainer',
       type: 'success',
       duration: 8
-    })
+    });
 
     var alertFail = $alert({
-      title: 'Not saved',
-      content: 'New Look failed to save',
+      title: 'Not Saved ',
+      content: 'Look has failed to edit',
       placement: 'top-right',
       container: '#alertContainer',
       type: 'warning',
       duration: 8
-    })
+    });
 
     var myModal = $modal({
       scope: $scope,
       show: false
     });
 
-    $scope.showModal = function() {
+    $scope.showModal = function () {
       myModal.$promise.then(myModal.show);
     }
 
-    looksAPI.getAllLooks()
-      .then(function(data) {
-        console.log('looks found ');
-        console.log(data);
-        // $scope.looks = data.data;
-        $scope.allData = data.data;
-        $scope.busy = false;
+
+    //  Get All users
+    adminAPI.getAllUsers()
+      .then(function (data) {
+        $scope.users = data.data;
       })
-      .catch(function(err) {
-        console.log('failed to get looks ' + err);
+      .catch(function (err) {
+        console.log('error getting users');
+        console.log(err);
       });
 
-      $scope.nextPage = function() {
-        var lookLength = $scope.looks.length;
-        if($scope.busy) {
-          return;
-        }
-        $scope.busy = true;
-        $scope.looks = $scope.looks.concat($scope.allData.splice(page * step, step));
-        page++;
-        $scope.busy = false;
-        if($scope.looks.length === 0) {
-          $scope.noMoreData = true;
-        }
-      };
+    looksAPI.getAllLooks()
+      .then(function (data) {
+        console.log(data);
+        $scope.looks = data.data;
+      })
+      .catch(function (err) {
+        console.log('failed to get all looks');
+      })
 
-      $scope.showUploadForm = function() {
-        $scope.uploadLookForm = true;
-        $scope.scrapePostForm = false;
-        $scope.uploadLookTitle = false;
-      }
 
-    // Watch for changes to URL, Scrape and Display the image
-    $scope.$watch("look.link", function(newVal, oldVal) {
-      if (newVal.length > 5) {
-        $scope.loading = true;
-        var link = {
-            url: $scope.look.link
-          }
-        scrapeAPI.getScrapeDetails(link)
-          .then(function(data) {
-            console.log(data);
-            $scope.showScrapeDetails = true;
-            $scope.gotScrapeResults = true;
-            $scope.uploadLookTitle = false;
-            $scope.look.imgThumb = data.data.img;
-            $scope.look.description = data.data.desc;
-          })
-          .catch(function(data) {
-            console.log('failed to return from scrape');
-            $scope.loading = false;
-            $scope.look.link = '';
-            $scope.gotScrapeResults = false;
-          })
-          .finally(function() {
-            $scope.loading = false;
-            $scope.uploadLookForm = false;
-          });
-      }
-    });
 
-    $scope.addVote = function(look) {
+    //Delete User
 
-      looksAPI.upVoteLook(look)
-        .then(function(data) {
-          console.log(data);
-          look.upVotes++;
+    $scope.deleteUser = function (user) {
+      adminAPI.deleteUser(user)
+        .then(function (data) {
+          console.log('deleted user');
+          var index = $scope.users.indexOf(user);
+          $scope.users.splice(index, 1);
         })
-        .catch(function(err) {
-          console.log('failed adding upvote ');
+        .catch(function (err) {
+          console.log('failed to delete user');
+          console.log(err);
         });
     }
 
-    $scope.addScrapePost = function() {
-      var look = {
-        description: $scope.look.description,
-        title: $scope.look.title,
-        image: $scope.look.imgThumb,
-        linkURL: $scope.look.link,
-        email: $scope.user.email,
-        name: $scope.user.name,
-        _creator: $scope.user._id
-      }
-      looksAPI.createScrapeLook(look)
-        .then(function(data) {
-          console.log('posted from frontend success');
+
+    //EDIT Look
+
+    $scope.editLook = function (look) {
+      looksAPI.getUpdateLook(look)
+        .then(function (data) {
           console.log(data);
+          $scope.editLook = data.data;
+        })
+        .catch(function (err) {
+          console.log('failed to edit look ' + err);
+        });
+    }
+
+
+    //Update Look
+
+    $scope.saveLook = function () {
+      var look = $scope.editLook;
+
+      looksAPI.updateLook(look)
+        .then(function (data) {
+          console.log('Look updated');
+          console.log(data);
+          $scope.editLook.title = '';
+          $scope.editLook.description = '';
           alertSuccess.show();
-          $scope.showScrapeDetails = false;
-          $scope.gotScrapeResults = false;
-          $scope.look.title = '';
-          $scope.look.link = '';
-          $scope.looks.splice(0, 0, data.data);
         })
-        .catch(function() {
-          console.log('failed to post from frontend ');
-          $scope.showScrapeDetails = false;
-          alertFail.show(); // for our fail alert
+        .catch(function (err) {
+          console.log('failed to update' + err);
+          alertFail.show();
         });
     }
 
-    $scope.uploadPic = function(file) {
-      Upload.upload({
-        url: '/api/look/upload',
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        },
-        data: {
-          file: file,
-          title: $scope.look.title,
-          description: $scope.look.description,
-          email: $scope.user.email,
-          name: $scope.user.name,
-          linkURL: $scope.look._id,
-          _creator: $scope.user._id
-        }
-      }).then(function(resp) {
-        console.log('success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-        $scope.looks.splice(0, 0, resp.data);
-        $scope.look.title = '';
-        $scope.look.description = '';
-        $scope.picFile = '';
-        $scope.picPreview = false;
-        alertSuccess.show();
-      }, function(resp) {
-        alertFail.show();
-      }, function(evt) {
-        var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-        console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
-      });
+    $scope.deleteLook = function (look) {
+      looksAPI.deleteLook(look)
+        .then(function (data) {
+          var index = $scope.looks.indexOf(look);
+          $scope.editLook.description = '';
+          $scope.editLook.title = '';
+          $scope.deleteBtn = false;
+          alertSuccess.show();
+          $scope.looks.splice(index, 1);
+          console.log('success, look deleted');
+        })
+        .catch(function (err) {
+          alertFail.show();
+          console.log('failed to delete look' + err);
+        });
     }
 
   }
